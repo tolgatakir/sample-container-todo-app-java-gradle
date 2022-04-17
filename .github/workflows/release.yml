@@ -2,14 +2,19 @@ name: Release sample-container-todo-app-java-gradle to Docker Hub
 
 on:
   workflow_dispatch:
+  workflow_call:
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_PASSWORD:
+        required: true
 
 jobs:
-  docker:
+  release:
     name: Publish - Docker Hub
     runs-on: ubuntu-latest
     env:
       REPO: tolgatakir/sample-container-todo-app-java-gradle
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 8
@@ -18,11 +23,11 @@ jobs:
           java-version: 8
           distribution: 'adopt'
           cache: 'gradle'
-      - name: Create artifact
+      - name: Create Artifact
         run: ./gradlew build -x test
       - name: Login to Docker Hub
-        run: docker login -u tolgatakir -p ${{ secrets.DOCKERHUB_PASSWORD }}
-      - name: Build Docker image
+        run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build Docker Image
         run: docker build -t $REPO:latest -t $REPO:${GITHUB_SHA::8} .
-      - name: Publish Docker image
+      - name: Publish Docker Image
         run: docker push $REPO -a

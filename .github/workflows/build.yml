@@ -1,4 +1,4 @@
-name: CI for sample-container-todo-app-java-gradle
+name: Build for sample-container-todo-app-java-gradle
 
 on:
   push:
@@ -6,12 +6,13 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
     strategy:
       matrix:
-        os: [ ubuntu-latest ]
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
         jdk: [ 8, 11, 16 ]
     name: Build
     runs-on: ${{ matrix.os }}
@@ -24,9 +25,4 @@ jobs:
           distribution: 'adopt'
           cache: 'gradle'
       - name: Build with Gradle
-        run: ./gradlew clean build
-      - name: Archive test report
-        uses: actions/upload-artifact@v2
-        with:
-          name: test-result-junit
-          path: build/reports/tests/test/
+        run: ./gradlew clean build -x test

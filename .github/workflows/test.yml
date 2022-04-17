@@ -1,0 +1,33 @@
+name: Test for sample-container-todo-app-java-gradle
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        jdk: [ 8, 11, 16 ]
+    name: Run Tests
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ matrix.jdk }}
+          distribution: 'adopt'
+          cache: 'gradle'
+      - name: Run Tests with Gradle
+        run: ./gradlew clean test
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-result-junit
+          path: build/reports/tests/test/
